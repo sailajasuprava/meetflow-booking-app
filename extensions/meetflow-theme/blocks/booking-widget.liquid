@@ -22,7 +22,7 @@
        <div class="mf-duration">🕒 2 hours, 30 minutes</div> 
       {% endcomment %}
 
-<div class="mf-duration" id="mf-duration">🕒</div>
+    <div class="mf-duration" id="mf-duration">🕒</div>
 
       <div class="mf-grid">
         <div class="mf-calendar-side">
@@ -99,107 +99,168 @@
 </style>
 
 <script>
-
 async function fetchBookingConfig() {
-  const shop = Shopify.shop;
+  console.log("Shopify global:", typeof Shopify, Shopify?.shop); // Debug line 1
+  
+  // Try multiple ways to get shop domain
+  let shop = Shopify?.shop || 
+             window.Shopify?.shop || 
+             document.querySelector('meta[name="shopify-domain"]')?.getAttribute('content') ||
+             window.location.hostname.replace('.myshopify.com', '');
 
-  const response = await fetch(
-    `https://YOUR_APP_DOMAIN/api/public/booking-config?shop=${shop}`
-  );
+  console.log("Detected shop:", shop); // Debug line 2
 
-  return await response.json();
-}
-
-  document.addEventListener('DOMContentLoaded', function () {
-    const modal = document.getElementById('meetflow-modal');
-    const toaster = document.getElementById('mf-toaster');
-    // Save original toaster position
-    const toasterOriginalParent = toaster.parentNode;
-    const toasterNextSibling = toaster.nextSibling;
-
-    const toastMsg = document.getElementById('mf-toast-message');
-    
-    const openBtn = document.getElementById('meetflow-open-modal');
-    const closeBtn = document.getElementById('meetflow-close-modal');
-    const bookBtn = document.getElementById('mf-book-now');
-    const datePicker = document.getElementById('mf-date-picker');
-    const slots = document.querySelectorAll('.mf-slot');
-
-    let selectedDate = null;
-    let selectedTimeRange = null;
-
-    const originalParent = modal.parentNode;
-    const originalNextSibling = modal.nextSibling;
-
-    /* ---------------- OPEN MODAL ---------------- */
-   openBtn.addEventListener('click', async () => {
-  const config = await fetchBookingConfig();
-
-  if (config) {
-    document.getElementById("mf-duration").innerText =
-      `🕒 ${config.durationHours} hours, ${config.durationMinutes} minutes`;
+  if (!shop || shop.includes('localhost')) {
+    console.log("No valid shop domain found"); // Debug line 3
+    return { config: null };
   }
 
-  document.body.appendChild(modal);
-  modal.style.display = 'flex';
-  document.body.classList.add('mf-modal-open');
-});
+  const url = `https://meetflow-booking-app-roi7.vercel.app/api/public/booking-config?shop=${shop}`;
+  console.log("Fetching from:", url); // Debug line 4
+
+  try {
+    const response = await fetch(url);
+    console.log("Response status:", response.status); // Debug line 5
+    const data = await response.json();
+    console.log("API response:", data); // Debug line 6
+    return data;
+  } catch (error) {
+    console.error("Fetch error:", error); // Debug line 7
+    return { config: null };
+  }
+}
 
 
-    /* ---------------- CLOSE MODAL FUNCTION ---------------- */
-    const closeModal = () => {
-      modal.style.display = 'none';
-      document.body.classList.remove('mf-modal-open');
-      if (originalNextSibling) {
-        originalParent.insertBefore(modal, originalNextSibling);
-      } else {
-        originalParent.appendChild(modal);
-      }
-    };
+document.addEventListener('DOMContentLoaded', function () {
+  const modal = document.getElementById('meetflow-modal');
+  const toaster = document.getElementById('mf-toaster');
+  const toastMsg = document.getElementById('mf-toast-message');
+  const openBtn = document.getElementById('meetflow-open-modal');
+  const closeBtn = document.getElementById('meetflow-close-modal');
+  const bookBtn = document.getElementById('mf-book-now');
+  const datePicker = document.getElementById('mf-date-picker');
+  const slotsContainer = document.getElementById('mf-slots-container');
+  const durationEl = document.getElementById('mf-duration');
 
-    closeBtn.addEventListener('click', closeModal);
+  let selectedDate = null;
+  let selectedTimeRange = null;
+  let config = null;
 
-    /* ---------------- SELECTION LOGIC ---------------- */
-    datePicker.addEventListener('change', (e) => {
-      selectedDate = e.target.value;
-      updateButtonState();
-    });
+  const originalParent = modal.parentNode;
+  const originalNextSibling = modal.nextSibling;
+  const toasterOriginalParent = toaster.parentNode;
+  const toasterNextSibling = toaster.nextSibling;
 
-    slots.forEach((slot) => {
-      slot.addEventListener('click', function () {
-        slots.forEach((s) => s.classList.remove('selected'));
-        this.classList.add('selected');
-        selectedTimeRange = this.getAttribute('data-time-range');
+  function updateButtonState() {
+    bookBtn.disabled = !(selectedDate && selectedTimeRange);
+  }
+
+  function generateSlots() {
+    // Simple example: generate slots for one day using config
+    if (!config) return;
+
+    const durationMinutesTotal =
+      parseInt(config.durationHours, 10) * 60 +
+      parseInt(config.durationMinutes, 10);
+
+    const increment =
+      config.incrementUnit === "hours"
+        ? parseInt(config.incrementValue, 10) * 60
+        : parseInt(config.incrementValue, 10);
+
+    slotsContainer.innerHTML = "";
+
+    // Start from 9:00 to 18:00 for example
+    let startMinutes = 9 * 60;
+    const endMinutes = 18 * 60;
+
+    while (startMinutes + durationMinutesTotal <= endMinutes) {
+      const end = startMinutes + durationMinutesTotal;
+
+      const label = `${formatTime(startMinutes)} - ${formatTime(end)}`;
+
+      const btn = document.createElement("button");
+      btn.className = "mf-slot";
+      btn.dataset.timeRange = label;
+      btn.textContent = label;
+
+      btn.addEventListener("click", function () {
+        document
+          .querySelectorAll(".mf-slot")
+          .forEach((s) => s.classList.remove("selected"));
+        this.classList.add("selected");
+        selectedTimeRange = this.getAttribute("data-time-range");
         updateButtonState();
       });
-    });
 
-    function updateButtonState() {
-      bookBtn.disabled = !(selectedDate && selectedTimeRange);
+      slotsContainer.appendChild(btn);
+
+      startMinutes += increment;
+    }
+  }
+
+  function formatTime(totalMinutes) {
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    const suffix = h >= 12 ? "PM" : "AM";
+    const hour12 = ((h + 11) % 12) + 1;
+    const mm = m.toString().padStart(2, "0");
+    return `${hour12}:${mm} ${suffix}`;
+  }
+
+  openBtn.addEventListener('click', async () => {
+    // Fetch config once when opening
+    if (!config) {
+      try {
+        const result = await fetchBookingConfig();
+        config = result.config;
+
+        if (config) {
+          durationEl.textContent = `🕒 ${config.durationHours} hours, ${config.durationMinutes} minutes`;
+          generateSlots();
+        } else {
+          durationEl.textContent = "🕒 Default duration";
+        }
+      } catch (e) {
+        durationEl.textContent = "🕒 Unable to load duration";
+      }
     }
 
-    /* ---------------- BOOK NOW LOGIC ---------------- */
-    bookBtn.addEventListener('click', () => {
-      // 1. Format date from YYYY-MM-DD to DD-MM-YYYY
-      const dateParts = selectedDate.split('-');
-      const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+    document.body.appendChild(modal);
+    modal.style.display = 'flex';
+    document.body.classList.add('mf-modal-open');
+  });
 
-      // 2. Set Toast Message
-      toastMsg.innerText = `Appointment scheduled on ${formattedDate} from ${selectedTimeRange}`;
+  const closeModal = () => {
+    modal.style.display = 'none';
+    document.body.classList.remove('mf-modal-open');
+    if (originalNextSibling) {
+      originalParent.insertBefore(modal, originalNextSibling);
+    } else {
+      originalParent.appendChild(modal);
+    }
+  };
 
-      // 3. Close Modal
-      closeModal();
+  closeBtn.addEventListener('click', closeModal);
 
-      // 4. Show Toaster
-      // Move toaster to body (escape stacking context)
-      document.body.appendChild(toaster);
+  datePicker.addEventListener('change', (e) => {
+    selectedDate = e.target.value;
+    updateButtonState();
+  });
 
-      // Show toaster
-      toaster.style.display = 'flex';
+  // Book now logic (same as you have, unchanged)
+  bookBtn.addEventListener('click', () => {
+    const dateParts = selectedDate.split('-');
+    const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
 
+    toastMsg.innerText = `Appointment scheduled on ${formattedDate} from ${selectedTimeRange}`;
 
-      // 5. Hide Toaster after 5 seconds
-      setTimeout(() => {
+    closeModal();
+
+    document.body.appendChild(toaster);
+    toaster.style.display = 'flex';
+
+    setTimeout(() => {
       toaster.style.opacity = '0';
       toaster.style.transition = 'opacity 0.5s ease';
 
@@ -207,7 +268,6 @@ async function fetchBookingConfig() {
         toaster.style.display = 'none';
         toaster.style.opacity = '1';
 
-        // Restore toaster back to original DOM position
         if (toasterNextSibling) {
           toasterOriginalParent.insertBefore(toaster, toasterNextSibling);
         } else {
@@ -215,10 +275,10 @@ async function fetchBookingConfig() {
         }
       }, 500);
     }, 5000);
-
-    });
   });
+});
 </script>
+
 
 {% schema %}
 {
