@@ -1,4 +1,4 @@
-import { prisma } from "../db.server";
+import prisma from "../db.server";
 
 export async function loader({ request }) {
   const url = new URL(request.url);

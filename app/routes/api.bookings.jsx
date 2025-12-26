@@ -1,5 +1,5 @@
 import { authenticate } from "../shopify.server";
-import { prisma } from "../db.server"; // Prisma or DB client
+import prisma from "../db.server"; // Prisma or DB client
 
 export async function action({ request }) {
   const { session } = await authenticate.public(request);
