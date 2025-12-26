@@ -13,17 +13,34 @@ import Step5EnableExtension from "../components/Step5EnableExtension";
 
 /* -------------------- LOADER (IMPORTANT) -------------------- */
 export const loader = async ({ request }) => {
-  const { session } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
+
+  const response = await admin.graphql(`
+    {
+      products(first: 1, query: "title:Meetflow Appointment Booking") {
+        edges {
+          node {
+            id
+            title
+          }
+        }
+      }
+    }
+  `);
+
+  const data = await response.json();
+  const productId = data.data.products.edges[0].node.id;
 
   return {
     shop: session.shop, // e.g. "sailaja-store-2.myshopify.com"
     themeExtensionId: process.env.THEME_EXTENSION_ID,
+    productId,
   };
 };
 /* ------------------------------------------------------------ */
 
 export default function AppIndex() {
-  const { shop, themeExtensionId } = useLoaderData(); // ✅ shop available everywhere
+  const { shop, productId, themeExtensionId } = useLoaderData(); // ✅ shop available everywhere
 
   useEffect(() => {
     console.log("AppIndex rendered, shop:", shop);
@@ -51,7 +68,7 @@ export default function AppIndex() {
           {step === 0 && <WelcomeScreen />}
           {/* {step === 1 && <Step1AddService />} */}
           {step === 1 && <Step2BookingType />}
-          {step === 2 && <Step3TimeSlot />}
+          {step === 2 && <Step3TimeSlot productId={productId} />}
           {step === 3 && <Step4WorkingHours />}
           {step === 4 && (
             <Step5EnableExtension

@@ -18,8 +18,12 @@
     </div>
 
     <div class="mf-modal-body">
-      <div class="mf-duration">🕒 1 hours, 30 minutes</div>
-      
+    {% comment %}
+       <div class="mf-duration">🕒 2 hours, 30 minutes</div> 
+      {% endcomment %}
+
+<div class="mf-duration" id="mf-duration">🕒</div>
+
       <div class="mf-grid">
         <div class="mf-calendar-side">
           <input type="date" id="mf-date-picker" class="mf-input">
@@ -95,6 +99,17 @@
 </style>
 
 <script>
+
+async function fetchBookingConfig() {
+  const shop = Shopify.shop;
+
+  const response = await fetch(
+    `https://YOUR_APP_DOMAIN/api/public/booking-config?shop=${shop}`
+  );
+
+  return await response.json();
+}
+
   document.addEventListener('DOMContentLoaded', function () {
     const modal = document.getElementById('meetflow-modal');
     const toaster = document.getElementById('mf-toaster');
@@ -117,11 +132,19 @@
     const originalNextSibling = modal.nextSibling;
 
     /* ---------------- OPEN MODAL ---------------- */
-    openBtn.addEventListener('click', () => {
-      document.body.appendChild(modal);
-      modal.style.display = 'flex';
-      document.body.classList.add('mf-modal-open');
-    });
+   openBtn.addEventListener('click', async () => {
+  const config = await fetchBookingConfig();
+
+  if (config) {
+    document.getElementById("mf-duration").innerText =
+      `🕒 ${config.durationHours} hours, ${config.durationMinutes} minutes`;
+  }
+
+  document.body.appendChild(modal);
+  modal.style.display = 'flex';
+  document.body.classList.add('mf-modal-open');
+});
+
 
     /* ---------------- CLOSE MODAL FUNCTION ---------------- */
     const closeModal = () => {

@@ -9,8 +9,8 @@ generator client {
 // enough when changing adapters.
 // See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
 datasource db {
-  provider = "sqlite"
-  url      = "file:dev.sqlite"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Session {
@@ -44,12 +44,15 @@ model Event {
   createdAt     DateTime @default(now())
 }
 
-model Booking {
-  id            String   @id @default(cuid())
-  shop          String
-  productHandle String
-  date          String
-  timeRange     String
-  createdAt     DateTime @default(now())
+model BookingConfig {
+  id              String   @id @default(uuid())
+  shop            String   @unique
+  durationHours   String
+  durationMinutes String
+  incrementValue  String
+  incrementUnit   String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
+
 

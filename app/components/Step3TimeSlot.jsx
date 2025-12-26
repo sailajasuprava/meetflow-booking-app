@@ -5,6 +5,7 @@ import {
   InlineStack,
   Select,
   Box,
+  Button,
 } from "@shopify/polaris";
 import { useState } from "react";
 
@@ -13,6 +14,29 @@ export default function Step3TimeSlot() {
   const [durationMinutes, setDurationMinutes] = useState("30");
   const [incrementValue, setIncrementValue] = useState("60");
   const [incrementUnit, setIncrementUnit] = useState("minutes");
+  const [loading, setLoading] = useState(false);
+
+  async function saveBookingConfig() {
+    setLoading(true);
+    const response = await fetch("/api/booking-config", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        durationHours,
+        durationMinutes,
+        incrementValue,
+        incrementUnit,
+      }),
+    });
+
+    const data = await response.json();
+
+    console.log(data);
+
+    setLoading(false);
+  }
 
   return (
     <BlockStack gap="400">
@@ -81,6 +105,10 @@ export default function Step3TimeSlot() {
           every hour (i.e: 9:00 am, 10:00 am, 11:00 am, etc.)
         </Text>
       </BlockStack>
+
+      <Button primary loading={loading} onClick={saveBookingConfig}>
+        Save & Continue
+      </Button>
     </BlockStack>
   );
 }
