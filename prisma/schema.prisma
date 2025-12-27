@@ -55,4 +55,17 @@ model BookingConfig {
   updatedAt       DateTime @updatedAt
 }
 
+model Appointment {
+  id               String   @id @default(uuid())
+  shop             String
+  selectedDate     String   // "2025-12-28" format
+  timeRange        String   // "10:00 AM - 12:00 PM"
+  durationHours    String?
+  durationMinutes  String?
+  customerEmail    String?  // Optional: capture customer info
+  customerName     String?  // Optional: capture customer info
+  createdAt        DateTime @default(now())
+  
+  @@map("appointments")  // Table name in PostgreSQL
+}
 
