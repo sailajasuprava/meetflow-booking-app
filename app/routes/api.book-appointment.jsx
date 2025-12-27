@@ -82,7 +82,7 @@ export async function action({ request }) {
       );
     }
 
-    const appointment = await prisma.appointment.create({
+    const appointment = await prisma.appointments.create({
       data: {
         shop,
         selectedDate: String(selectedDate),
