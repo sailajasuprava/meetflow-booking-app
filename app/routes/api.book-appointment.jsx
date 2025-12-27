@@ -54,8 +54,9 @@ export async function action({ request }) {
     }
 
     const body = await request.json();
+    const url = new URL(request.url);
 
-    const shop = new URL(request.url).searchParams.get("shop");
+    const shop = url.searchParams.get("shop");
 
     if (!shop) {
       return new Response(JSON.stringify({ error: "Missing shop parameter" }), {
@@ -64,9 +65,16 @@ export async function action({ request }) {
       });
     }
 
-    const { selectedDate, selectedTimeRange, durationHours, durationMinutes } =
-      body;
+    const {
+      selectedDate,
+      selectedTimeRange,
+      durationHours,
+      durationMinutes,
+      customerEmail,
+      customerName,
+    } = body;
 
+    // 🔒 HARD VALIDATION (prevents Prisma crashes)
     if (!selectedDate || !selectedTimeRange) {
       return new Response(
         JSON.stringify({ error: "Invalid appointment data" }),
@@ -77,10 +85,12 @@ export async function action({ request }) {
     const appointment = await prisma.appointment.create({
       data: {
         shop,
-        selectedDate,
-        timeRange: selectedTimeRange,
-        durationHours: durationHours?.toString() || "0",
-        durationMinutes: durationMinutes?.toString() || "0",
+        selectedDate: String(selectedDate),
+        timeRange: String(selectedTimeRange),
+        durationHours: durationHours?.toString() || null,
+        durationMinutes: durationMinutes?.toString() || null,
+        customerEmail: customerEmail || null,
+        customerName: customerName || null,
       },
     });
 
@@ -92,10 +102,13 @@ export async function action({ request }) {
       { status: 200, headers },
     );
   } catch (error) {
-    console.error("Booking error:", error);
+    console.error("❌ Booking error FULL:", error);
 
     return new Response(
-      JSON.stringify({ error: "Failed to create appointment" }),
+      JSON.stringify({
+        error: "Failed to create appointment",
+        details: error.message,
+      }),
       { status: 500, headers },
     );
   }
