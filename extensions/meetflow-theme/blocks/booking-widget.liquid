@@ -100,6 +100,7 @@
 
 <script>
 window.MEETFLOW_SHOP = "{{ shop.permanent_domain }}";
+console.log("MEETFLOW_SHOP set to:", window.MEETFLOW_SHOP); // Debug
 
 async function fetchBookingConfig() {
   const shop = window.MEETFLOW_SHOP || Shopify?.shop;
@@ -239,53 +240,47 @@ function updateButtonState() {
 
   bookBtn.addEventListener('click', async () => {
   try {
-    // Prepare booking data matching your Prisma model
     const bookingData = {
       selectedDate: window.selectedDate,
       selectedTimeRange: window.selectedTimeRange,
       durationHours: window.config.durationHours,
       durationMinutes: window.config.durationMinutes,
-      // Optional: Add customer info if you capture it
-      // customerEmail: "customer@example.com",
-      // customerName: "John Doe"
     };
 
-    console.log("Sending booking data:", bookingData); // Debug log
+    // ✅ Robust shop detection (same as your working fetchBookingConfig)
+    const shop = window.MEETFLOW_SHOP || Shopify?.shop;
+// Use your Vercel domain here
+const apiUrl = `https://meetflow-booking-app-roi7.vercel.app/api/book-appointment?shop=${shop}`;
+    
+    console.log("Using shop:", shop);
+    console.log("API URL:", apiUrl);
+    console.log("Booking data:", bookingData);
 
-    // POST to your Remix API route
-    const response = await fetch('https://${shop}/api/book-appointment', {
+    const response = await fetch(apiUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Shopify automatically handles session/auth for Remix apps
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(bookingData)
     });
 
     if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
     }
-
+    
     const result = await response.json();
-    console.log("Booking saved! ID:", result.appointmentId);
-
-    // Show success toast with appointment details
-    const dateParts = window.selectedDate.split('-');
-    const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-    toastMsg.innerText = `✅ Appointment booked for ${formattedDate} at ${window.selectedTimeRange} (ID: ${result.appointmentId})`;
+    console.log("✅ Booking saved! ID:", result.appointmentId);
+    toastMsg.innerText = `✅ Booked! ID: ${result.appointmentId}`;
 
     // Reset form
     window.selectedDate = null;
     window.selectedTimeRange = null;
     datePicker.value = '';
-    document.querySelectorAll('.mf-slot').forEach(slot => {
-      slot.classList.remove('selected');
-    });
-    updateButtonState(); // Disable button after booking
+    document.querySelectorAll('.mf-slot').forEach(slot => slot.classList.remove('selected'));
+    updateButtonState();
 
   } catch (error) {
     console.error('Booking failed:', error);
-    toastMsg.innerText = `❌ Booking failed: ${error.message}`;
+    toastMsg.innerText = `❌ ${error.message}`;
   }
 
   // Show toast (success or error)

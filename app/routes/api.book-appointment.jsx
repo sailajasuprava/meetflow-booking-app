@@ -3,37 +3,43 @@ import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 
 export async function action({ request }) {
+  // CORS Headers for public requests
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+
+  if (request.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
   try {
-    // ✅ Use authenticate.publicApp() for public storefront requests
+    // This looks for the ?shop= query parameter you added in step 1
     const { session } = await authenticate.publicApp(request);
     const body = await request.json();
 
-    console.log("Received booking data:", body);
-
     const appointment = await prisma.appointment.create({
       data: {
-        shop: session.shop,
+        shop: session
+          ? session.shop
+          : new URL(request.url).searchParams.get("shop"),
         selectedDate: body.selectedDate,
         timeRange: body.selectedTimeRange,
-        durationHours: body.durationHours,
-        durationMinutes: body.durationMinutes,
+        durationHours: body.durationHours.toString(),
+        durationMinutes: body.durationMinutes.toString(),
       },
     });
 
-    return Response.json({
-      success: true,
-      appointmentId: appointment.id,
-    });
+    return Response.json(
+      { success: true, appointmentId: appointment.id },
+      { headers: corsHeaders },
+    );
   } catch (error) {
     console.error("Booking error:", error);
     return Response.json(
       { error: "Failed to create appointment" },
-      { status: 500 },
+      { status: 500, headers: corsHeaders },
     );
   }
-}
-
-// ✅ Add loader for GET requests (optional, for testing)
-export async function loader({ request }) {
-  return Response.json({ message: "Booking API ready" });
 }
