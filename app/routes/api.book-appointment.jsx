@@ -82,7 +82,11 @@ export async function action({ request }) {
       );
     }
 
-    const appointment = await prisma.appointments.create({
+    if (!prisma?.appointment) {
+      throw new Error("Prisma client not initialized correctly");
+    }
+
+    const appointment = await prisma.appointment.create({
       data: {
         shop,
         selectedDate: String(selectedDate),
