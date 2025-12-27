@@ -65,7 +65,5 @@ model Appointment {
   customerEmail    String?  // Optional: capture customer info
   customerName     String?  // Optional: capture customer info
   createdAt        DateTime @default(now())
-  
-  @@map("appointments")  // Table name in PostgreSQL
 }
 
