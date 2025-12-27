@@ -42,24 +42,21 @@ export async function loader({ request }) {
  * ACTION
  * Handles appointment creation
  */
+
 export async function action({ request }) {
   const headers = getCorsHeaders(request);
 
   try {
-    if (request.method !== "POST") {
-      return new Response(JSON.stringify({ error: "Method not allowed" }), {
-        status: 405,
-        headers,
-      });
+    if (!prisma || !prisma.appointment) {
+      throw new Error("Prisma client not initialized correctly");
     }
 
     const body = await request.json();
     const url = new URL(request.url);
-
     const shop = url.searchParams.get("shop");
 
     if (!shop) {
-      return new Response(JSON.stringify({ error: "Missing shop parameter" }), {
+      return new Response(JSON.stringify({ error: "Missing shop" }), {
         status: 400,
         headers,
       });
@@ -74,7 +71,6 @@ export async function action({ request }) {
       customerName,
     } = body;
 
-    // 🔒 HARD VALIDATION (prevents Prisma crashes)
     if (!selectedDate || !selectedTimeRange) {
       return new Response(
         JSON.stringify({ error: "Invalid appointment data" }),
@@ -82,15 +78,11 @@ export async function action({ request }) {
       );
     }
 
-    if (!prisma?.appointment) {
-      throw new Error("Prisma client not initialized correctly");
-    }
-
     const appointment = await prisma.appointment.create({
       data: {
         shop,
-        selectedDate: String(selectedDate),
-        timeRange: String(selectedTimeRange),
+        selectedDate,
+        timeRange: selectedTimeRange,
         durationHours: durationHours?.toString() || null,
         durationMinutes: durationMinutes?.toString() || null,
         customerEmail: customerEmail || null,
@@ -99,14 +91,11 @@ export async function action({ request }) {
     });
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        appointmentId: appointment.id,
-      }),
+      JSON.stringify({ success: true, appointmentId: appointment.id }),
       { status: 200, headers },
     );
   } catch (error) {
-    console.error("❌ Booking error FULL:", error);
+    console.error("❌ Booking error:", error);
 
     return new Response(
       JSON.stringify({
