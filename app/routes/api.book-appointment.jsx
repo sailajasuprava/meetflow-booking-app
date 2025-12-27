@@ -1,68 +1,102 @@
 // app/routes/api.book-appointment.jsx
-import { authenticate } from "../shopify.server";
+
 import prisma from "../db.server";
 
-export async function action({ request }) {
-  // 1. Define CORS headers
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*", // Or "https://sailaja-store-2.myshopify.com"
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  };
+/**
+ * Utility: CORS headers
+ * Echoing back Origin is required for Shopify storefront requests
+ */
+function getCorsHeaders(request) {
+  const origin = request.headers.get("Origin");
 
-  // 2. Handle the Preflight (OPTIONS) request
+  return {
+    "Access-Control-Allow-Origin": origin || "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    Vary: "Origin",
+  };
+}
+
+/**
+ * LOADER
+ * Handles preflight (OPTIONS) requests
+ */
+export async function loader({ request }) {
+  const headers = getCorsHeaders(request);
+
   if (request.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
-      headers: corsHeaders,
+      headers,
     });
   }
 
+  // Optional health check
+  return new Response(JSON.stringify({ message: "Booking API ready" }), {
+    status: 200,
+    headers,
+  });
+}
+
+/**
+ * ACTION
+ * Handles appointment creation
+ */
+export async function action({ request }) {
+  const headers = getCorsHeaders(request);
+
   try {
-    // 3. Authenticate the request
-    // authenticate.publicApp uses the 'shop' query param to identify the store
-    const { session } = await authenticate.publicApp(request);
+    if (request.method !== "POST") {
+      return new Response(JSON.stringify({ error: "Method not allowed" }), {
+        status: 405,
+        headers,
+      });
+    }
+
     const body = await request.json();
 
-    const shopDomain =
-      session?.shop || new URL(request.url).searchParams.get("shop");
+    const shop = new URL(request.url).searchParams.get("shop");
 
-    if (!shopDomain) {
-      return Response.json(
-        { error: "Missing shop parameter" },
-        { status: 400, headers: corsHeaders },
+    if (!shop) {
+      return new Response(JSON.stringify({ error: "Missing shop parameter" }), {
+        status: 400,
+        headers,
+      });
+    }
+
+    const { selectedDate, selectedTimeRange, durationHours, durationMinutes } =
+      body;
+
+    if (!selectedDate || !selectedTimeRange) {
+      return new Response(
+        JSON.stringify({ error: "Invalid appointment data" }),
+        { status: 400, headers },
       );
     }
 
     const appointment = await prisma.appointment.create({
       data: {
-        shop: shopDomain,
-        selectedDate: body.selectedDate,
-        timeRange: body.selectedTimeRange,
-        durationHours: body.durationHours?.toString(),
-        durationMinutes: body.durationMinutes?.toString(),
+        shop,
+        selectedDate,
+        timeRange: selectedTimeRange,
+        durationHours: durationHours?.toString() || "0",
+        durationMinutes: durationMinutes?.toString() || "0",
       },
     });
 
-    return Response.json(
-      { success: true, appointmentId: appointment.id },
-      { status: 200, headers: corsHeaders },
+    return new Response(
+      JSON.stringify({
+        success: true,
+        appointmentId: appointment.id,
+      }),
+      { status: 200, headers },
     );
   } catch (error) {
     console.error("Booking error:", error);
-    return Response.json(
-      { error: "Failed to create appointment" },
-      { status: 500, headers: corsHeaders },
+
+    return new Response(
+      JSON.stringify({ error: "Failed to create appointment" }),
+      { status: 500, headers },
     );
   }
-}
-
-// Optional loader to keep the endpoint "alive" for GET checks
-export async function loader() {
-  return Response.json(
-    { message: "Booking API ready" },
-    {
-      headers: { "Access-Control-Allow-Origin": "*" },
-    },
-  );
 }
