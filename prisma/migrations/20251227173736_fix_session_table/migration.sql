@@ -49,5 +49,20 @@ CREATE TABLE "BookingConfig" (
     CONSTRAINT "BookingConfig_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Appointment" (
+    "id" TEXT NOT NULL,
+    "shop" TEXT NOT NULL,
+    "selectedDate" TEXT NOT NULL,
+    "timeRange" TEXT NOT NULL,
+    "durationHours" TEXT,
+    "durationMinutes" TEXT,
+    "customerEmail" TEXT,
+    "customerName" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Appointment_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "BookingConfig_shop_key" ON "BookingConfig"("shop");

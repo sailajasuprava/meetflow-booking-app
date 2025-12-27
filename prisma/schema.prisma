@@ -31,7 +31,10 @@ model Session {
   emailVerified Boolean?  @default(false)
   refreshToken        String?
   refreshTokenExpires DateTime?
+
+  @@map("Session")
 }
+
 
 model Event {
   id            String   @id @default(uuid())
