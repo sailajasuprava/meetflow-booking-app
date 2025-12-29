@@ -45,6 +45,9 @@ export async function loader({ request }) {
 
 export async function action({ request }) {
   const headers = getCorsHeaders(request);
+  // 👈 ADD THIS LOGGING
+  console.log("🔍 BOOK-APPOINTMENT Prisma keys:", Object.keys(prisma || {}));
+  console.log("🔍 Has appointment model:", !!prisma?.appointment);
 
   try {
     if (!prisma || !prisma.appointment) {
