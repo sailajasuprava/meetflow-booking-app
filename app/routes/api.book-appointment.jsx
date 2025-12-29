@@ -1,6 +1,6 @@
 // app/routes/api.book-appointment.jsx
-
-import prisma from "../db.server";
+export const runtime = "nodejs";
+import prisma from "../db.server.js";
 
 /**
  * Utility: CORS headers

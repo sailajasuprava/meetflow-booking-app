@@ -249,8 +249,7 @@ function updateButtonState() {
 
     // ✅ Robust shop detection (same as your working fetchBookingConfig)
     const shop = window.MEETFLOW_SHOP || Shopify?.shop;
-// Use your Vercel domain here
-const apiUrl = `https://meetflow-booking-app-roi7.vercel.app/api/book-appointment?shop=${shop}`;
+    const apiUrl = `https://meetflow-booking-app-roi7.vercel.app/api/book-appointment?shop=${shop}`;
     
     console.log("Using shop:", shop);
     console.log("API URL:", apiUrl);

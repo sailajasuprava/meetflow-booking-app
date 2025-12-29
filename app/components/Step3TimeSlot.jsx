@@ -31,9 +31,7 @@ export default function Step3TimeSlot() {
       }),
     });
 
-    const data = await response.json();
-
-    console.log(data);
+    await response.json();
 
     setLoading(false);
   }
