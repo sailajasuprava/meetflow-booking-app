@@ -26,18 +26,28 @@
 
       <div class="mf-grid">
         <div class="mf-calendar-side">
-          <input type="date" id="mf-date-picker" class="mf-input">
-        </div>
+            <input type="hidden" id="mf-date-picker">
+  
+            <div class="mf-custom-calendar">
+              <div class="mf-calendar-header">
+                <div id="mf-current-month" class="mf-month-display">December 2025</div>
+                <div class="mf-calendar-nav">
+                  <button type="button" id="mf-prev-month">&lt;</button>
+                  <button type="button" id="mf-next-month">&gt;</button>
+                </div>
+              </div>
+              <div class="mf-calendar-weekdays">
+                <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+              </div>
+              <div id="mf-calendar-days" class="mf-calendar-grid">
+                </div>
+            </div>
+      </div>
 
         <div class="mf-time-side">
           <p class="mf-day-label" id="mf-selected-day-label">Select a date</p>
           <div class="mf-time-slots" id="mf-slots-container">
-            <button class="mf-slot" data-time-range="12:00 AM - 1:30 AM">12:00 AM - 1:30 AM</button>
-            <button class="mf-slot" data-time-range="1:00 AM - 2:30 AM">1:00 AM - 2:30 AM</button>
-            <button class="mf-slot" data-time-range="2:00 AM - 3:30 AM">2:00 AM - 3:30 AM</button>
-            <button class="mf-slot" data-time-range="7:30 PM - 9:00 PM">7:30 PM - 9:00 PM</button>
-            <button class="mf-slot" data-time-range="8:30 PM - 10:00 PM">8:30 PM - 10:00 PM</button>
-            <button class="mf-slot" data-time-range="9:30 PM - 11:00 PM">9:30 PM - 11:00 PM</button>
+
           </div>
         </div>
       </div>
@@ -82,23 +92,90 @@
   body.mf-modal-open { overflow: hidden !important; }
   .mf-modal-content { background: #fff; width: 100%; max-width: 850px; max-height: 90vh; border-radius: 12px; overflow-y: auto; position: relative; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
   .mf-modal-header { padding: 16px 24px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-  .mf-header-title { display: flex; align-items: center; gap: 10px; color: #0080FF; }
+  .mf-header-title { display: flex; align-items: center; gap: 10px; color: #6366F1; }
   .mf-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; }
   .mf-modal-body { padding: 24px; }
-  .mf-duration { margin-bottom: 20px; font-size: 14px; color: #666; }
+  .mf-duration { margin-bottom: 20px; font-size: 14px; color: #000; }
   .mf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
   .mf-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+  .mf-day-label { color: #6366F1; font-weight: 600;  font-size: 1.125rem;  text-align: center; }
   .mf-time-slots { display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto; }
-  .mf-slot { padding: 12px; border: 1px solid #0080FF; background: #fff; color: #0080FF; border-radius: 12px; cursor: pointer; text-align: center; transition: 0.2s; }
-  .mf-slot.selected { background: #0080FF; color: #fff; }
+  .mf-slot { padding: 12px; border: 1px solid #6366F1; background: #fff; color: #000; border-radius: 12px; cursor: pointer; text-align: center; transition: 0.2s; }
+  .mf-slot.selected { background: #6366F1; color: #fff; }
   .mf-modal-footer { padding: 16px 24px; border-top: 1px solid #eee; display: flex; justify-content: center; }
-  .mf-book-btn { background: #0080FF; color: #fff; padding: 12px 60px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
-  .mf-book-btn:disabled { background: #ccc; cursor: not-allowed; }
-
+  .mf-book-btn { background: #6366F1; color: #fff; padding: 12px 60px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+  .mf-book-btn:disabled { background: #A5B4FC; cursor: not-allowed; }
+/* Custom Calendar Styles */
+  .mf-custom-calendar {
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px;
+    user-select: none;
+  }
+  .mf-calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 5px;
+  }
+  .mf-month-display {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #6366F1; /* Matching the blue in your screenshot */
+  }
+  .mf-calendar-nav button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #4b5563;
+    padding: 5px 10px;
+  }
+  .mf-calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 500;
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+  .mf-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+  }
+  .mf-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    border-radius: 50%;
+    transition: 0.2s;
+    color: #374151;
+  }
+  .mf-day:hover:not(.empty):not(.disabled) {
+    background: #eff6ff;
+  }
+  .mf-day.selected {
+    background: #6366F1 !important;
+    color: #fff !important;
+  }
+  .mf-day.disabled {
+    color: #d1d5db;
+    cursor: not-allowed;
+  }
+  .mf-day.empty {
+    cursor: default;
+  }
   @media (max-width: 640px) { .mf-grid { grid-template-columns: 1fr; } }
 </style>
 
 <script>
+
 window.MEETFLOW_SHOP = "{{ shop.permanent_domain }}";
 console.log("MEETFLOW_SHOP set to:", window.MEETFLOW_SHOP); // Debug
 
@@ -170,6 +247,11 @@ document.addEventListener('DOMContentLoaded', async function () {
   const datePicker = document.getElementById('mf-date-picker');
   const slotsContainer = document.getElementById('mf-slots-container');
   const durationEl = document.getElementById('mf-duration');
+  // New Calender UI logic...
+  const calendarDaysContainer = document.getElementById('mf-calendar-days');
+  const monthDisplay = document.getElementById('mf-current-month');
+  const prevBtn = document.getElementById('mf-prev-month');
+  const nextBtn = document.getElementById('mf-next-month');
 
   window.selectedDate = null;
   window.selectedTimeRange = null;
@@ -179,6 +261,79 @@ document.addEventListener('DOMContentLoaded', async function () {
   const originalNextSibling = modal.nextSibling;
   const toasterOriginalParent = toaster.parentNode;
   const toasterNextSibling = toaster.nextSibling;
+
+  // New Calender UI logic...
+  let currentViewDate = new Date();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  function renderCalendar() {
+    calendarDaysContainer.innerHTML = '';
+    const year = currentViewDate.getFullYear();
+    const month = currentViewDate.getMonth();
+
+    // Set Header
+    const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(currentViewDate);
+    monthDisplay.textContent = `${monthName} ${year}`;
+
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const lastDay = new Date(year, month + 1, 0).getDate();
+
+    // Add Empty Slots for previous month days
+    for (let i = 0; i < firstDayIndex; i++) {
+      const emptyDiv = document.createElement('div');
+      emptyDiv.className = 'mf-day empty';
+      calendarDaysContainer.appendChild(emptyDiv);
+    }
+
+    // Add Actual Days
+    for (let i = 1; i <= lastDay; i++) {
+      const dayBtn = document.createElement('div');
+      dayBtn.className = 'mf-day';
+      dayBtn.textContent = i;
+
+      const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+      const dateObj = new Date(year, month, i);
+
+      // Disable Past Dates
+      if (dateObj < today) {
+        dayBtn.classList.add('disabled');
+      } else {
+        dayBtn.addEventListener('click', () => {
+          document.querySelectorAll('.mf-day').forEach(d => d.classList.remove('selected'));
+          dayBtn.classList.add('selected');
+          
+          // Update your existing state
+          window.selectedDate = dateString;
+          datePicker.value = dateString; // Keeps your original logic working
+          updateButtonState();
+          
+          // Update the label above slots
+          document.getElementById('mf-selected-day-label').textContent = `Selected: ${dateString}`;
+        });
+      }
+
+      // Keep selected state if month changes
+      if (window.selectedDate === dateString) {
+        dayBtn.classList.add('selected');
+      }
+
+      calendarDaysContainer.appendChild(dayBtn);
+    }
+  }
+
+  // Nav Listeners
+  prevBtn.addEventListener('click', () => {
+    currentViewDate.setMonth(currentViewDate.getMonth() - 1);
+    renderCalendar();
+  });
+  nextBtn.addEventListener('click', () => {
+    currentViewDate.setMonth(currentViewDate.getMonth() + 1);
+    renderCalendar();
+  });
+
+  // Initial Render
+  renderCalendar();
 
 function updateButtonState() {
   const isEnabled = window.selectedDate && window.selectedTimeRange;
@@ -193,8 +348,6 @@ function updateButtonState() {
     bookBtn.classList.add('disabled');     // Add gray styling
   }
 }
-
-
 
   // ✅ FETCH CONFIG ON COMPONENT LOAD (not on button click)
   try {
@@ -267,8 +420,8 @@ function updateButtonState() {
     }
     
     const result = await response.json();
-    console.log("✅ Booking saved! ID:", result.appointmentId);
-    toastMsg.innerText = `✅ Booked! ID: ${result.appointmentId}`;
+    console.log("✅ Booking saved! ID:", result);
+    toastMsg.innerText = `Appointment Booked on: ${result.selectedDate} from ${result.selectedTimeRange}`;
 
     // Reset form
     window.selectedDate = null;
