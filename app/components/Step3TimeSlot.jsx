@@ -103,8 +103,13 @@ export default function Step3TimeSlot() {
           every hour (i.e: 9:00 am, 10:00 am, 11:00 am, etc.)
         </Text>
       </BlockStack>
-      <Button primary loading={loading} onClick={saveBookingConfig}>
-        Save & Continue
+      <Button
+        primary
+        variant="primary"
+        loading={loading}
+        onClick={saveBookingConfig}
+      >
+        Save
       </Button>
     </BlockStack>
   );

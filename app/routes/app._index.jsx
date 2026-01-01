@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import { Page, Card, Button, BlockStack, InlineStack } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 
@@ -40,6 +40,7 @@ export const loader = async ({ request }) => {
 /* ------------------------------------------------------------ */
 
 export default function AppIndex() {
+  const navigate = useNavigate();
   const { shop, productId, themeExtensionId } = useLoaderData(); // ✅ shop available everywhere
 
   useEffect(() => {
@@ -59,7 +60,13 @@ export default function AppIndex() {
   };
 
   return (
-    <Page title="MeetFlow: Appointment Booking">
+    <Page
+      title="MeetFlow: Appointment Booking"
+      primaryAction={{
+        content: "View all bookings",
+        onAction: () => navigate("/app/manage-bookings"),
+      }}
+    >
       <BlockStack gap="400">
         {step > 0 && <StepHeader currentStep={step} />}
 

@@ -1,4 +1,4 @@
-import { InlineStack, Box, Text, Icon } from "@shopify/polaris";
+import { InlineStack, Text, Icon } from "@shopify/polaris";
 import { CheckCircleIcon } from "@shopify/polaris-icons";
 
 const STEPS = [
