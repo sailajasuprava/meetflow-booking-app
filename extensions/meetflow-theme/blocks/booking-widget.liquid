@@ -419,7 +419,7 @@ function updateButtonState() {
     
     const result = await response.json();
     console.log("✅ Booking saved! ID:", result?.appointmentId);
-    toastMsg.innerText = `✅ Booked on ${window.selectedDate} at ${window.selectedTimeRange}`;
+    toastMsg.innerText = `Booked on ${window.selectedDate} at ${window.selectedTimeRange}`;
 
     // Reset form
     window.selectedDate = null;
