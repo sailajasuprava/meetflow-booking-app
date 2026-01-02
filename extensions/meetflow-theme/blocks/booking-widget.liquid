@@ -404,8 +404,6 @@ function updateButtonState() {
     const shop = window.MEETFLOW_SHOP || Shopify?.shop;
     const apiUrl = `https://meetflow-booking-app-roi7.vercel.app/api/book-appointment?shop=${shop}`;
     
-    console.log("Using shop:", shop);
-    console.log("API URL:", apiUrl);
     console.log("Booking data:", bookingData);
 
     const response = await fetch(apiUrl, {
@@ -420,8 +418,8 @@ function updateButtonState() {
     }
     
     const result = await response.json();
-    console.log("✅ Booking saved! ID:", result);
-    toastMsg.innerText = `Appointment Booked on: ${result.selectedDate} from ${result.selectedTimeRange}`;
+    console.log("✅ Booking saved! ID:", result?.appointmentId);
+    toastMsg.innerText = `✅ Booked on ${window.selectedDate} at ${window.selectedTimeRange}`;
 
     // Reset form
     window.selectedDate = null;
