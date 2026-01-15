@@ -5,7 +5,6 @@ import { authenticate } from "../shopify.server";
 
 import WelcomeScreen from "../components/WelcomeScreen";
 import StepHeader from "../components/StepHeader";
-// import Step1AddService from "../components/Step1AddService";
 import Step2BookingType from "../components/Step2BookingType";
 import Step3TimeSlot from "../components/Step3TimeSlot";
 import Step4WorkingHours from "../components/Step4WorkingHours";
@@ -13,35 +12,17 @@ import Step5EnableExtension from "../components/Step5EnableExtension";
 
 /* -------------------- LOADER (IMPORTANT) -------------------- */
 export const loader = async ({ request }) => {
-  const { admin, session } = await authenticate.admin(request);
-
-  const response = await admin.graphql(`
-    {
-      products(first: 1, query: "title:Meetflow Appointment Booking") {
-        edges {
-          node {
-            id
-            title
-          }
-        }
-      }
-    }
-  `);
-
-  const data = await response.json();
-  const productId = data.data.products.edges[0].node.id;
+  const { session } = await authenticate.admin(request);
 
   return {
-    shop: session.shop, // e.g. "sailaja-store-2.myshopify.com"
-    themeExtensionId: process.env.THEME_EXTENSION_ID,
-    productId,
+    shop: session.shop,
   };
 };
 /* ------------------------------------------------------------ */
 
 export default function AppIndex() {
   const navigate = useNavigate();
-  const { shop, productId, themeExtensionId } = useLoaderData(); // ✅ shop available everywhere
+  const { shop } = useLoaderData();
 
   useEffect(() => {
     console.log("AppIndex rendered, shop:", shop);
@@ -50,12 +31,10 @@ export default function AppIndex() {
   const [step, setStep] = useState(0);
 
   const next = () => {
-    console.log("Continue clicked, step:", step);
     setStep((s) => Math.min(s + 1, 4));
   };
 
   const back = () => {
-    console.log("Back clicked, step:", step);
     setStep((s) => Math.max(s - 1, 0));
   };
 
@@ -73,16 +52,10 @@ export default function AppIndex() {
         <Card padding="600">
           {/* Main content */}
           {step === 0 && <WelcomeScreen />}
-          {/* {step === 1 && <Step1AddService />} */}
           {step === 1 && <Step2BookingType />}
-          {step === 2 && <Step3TimeSlot productId={productId} />}
+          {step === 2 && <Step3TimeSlot />}
           {step === 3 && <Step4WorkingHours />}
-          {step === 4 && (
-            <Step5EnableExtension
-              shop={shop}
-              themeExtensionId={themeExtensionId}
-            />
-          )}
+          {step === 4 && <Step5EnableExtension shop={shop} />}
 
           {/* Navigation buttons */}
           <div style={{ marginTop: 32 }}>

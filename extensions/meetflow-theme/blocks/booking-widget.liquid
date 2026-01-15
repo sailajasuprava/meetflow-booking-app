@@ -1,6 +1,24 @@
 <div class="meetflow-booking-widget">
-  <h3>Book an appointment</h3>
-  <button class="meetflow-btn" id="meetflow-open-modal">Schedule appointment</button>
+  <div class="mf-widget-inner">
+
+    <!-- Left -->
+    <div class="mf-widget-image">
+      <img
+        src="{{ 'calendar2.jpg' | asset_url }}"
+        alt="MeetFlow Appointment"
+        loading="lazy"
+      />
+    </div>
+
+    <!-- Right -->
+    <div class="mf-widget-content">
+      <h3 class="mf-widget-title">Book an appointment</h3>
+      <button class="meetflow-btn" id="meetflow-open-modal">
+        Schedule appointment
+      </button>
+    </div>
+
+  </div>
 </div>
 
 <div id="mf-toaster" class="mf-toast" style="display: none;">
@@ -60,6 +78,75 @@
 </div>
 
 <style>
+
+/* === MeetFlow Widget Layout Fix === */
+.meetflow-booking-widget {
+  width: 100%;
+  padding: 32px 0;
+}
+
+/* Force equal halves */
+.mf-widget-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+/* Left = 50% */
+.mf-widget-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.mf-widget-image img {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  border-radius: 16px;
+}
+
+/* Right = 50% */
+.mf-widget-content {
+  flex: 1;
+}
+
+.mf-widget-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+/* Fix button being too large */
+.meetflow-btn {
+  width: auto;
+  padding: 14px 28px;
+  font-size: 16px;
+  border-radius: 10px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .mf-widget-inner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .mf-widget-image img {
+    max-width: 280px;
+  }
+
+  .meetflow-btn {
+    width: 100%;
+  }
+}
+
+
   /* Existing Styles */
   .meetflow-btn { width: 100%; padding: 14px 20px; font-size: 16px; font-weight: 600; color: #fff; background: #111827; border: none; border-radius: 10px; cursor: pointer; }
 
@@ -460,7 +547,7 @@ function updateButtonState() {
 {% schema %}
 {
   "name": "MeetFlow Booking",
-  "target": "section",
+  "target": "app_embed",
   "settings": []
 }
 {% endschema %}

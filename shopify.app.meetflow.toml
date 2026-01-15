@@ -28,4 +28,8 @@ api_version = "2026-01"
 scopes = "write_products"
 
 [auth]
-redirect_urls = [ "https://meetflow-booking-app-roi7.vercel.app/api/auth" ]
+redirect_urls = [
+  "https://meetflow-booking-app-roi7.vercel.app/api/auth",
+  "https://meetflow-booking-app-roi7.vercel.app/api/auth/callback",
+  "https://meetflow-booking-app-roi7.vercel.app/auth/callback"
+]

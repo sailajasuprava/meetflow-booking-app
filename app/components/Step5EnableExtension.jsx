@@ -3,12 +3,20 @@ import { BlockStack, Text, Button, List, InlineStack } from "@shopify/polaris";
 
 export default function Step5EnableExtension({ shop, themeExtensionId }) {
   const handleActivate = () => {
-    const storeHandle = shop.replace(".myshopify.com", "");
+    if (!shop) {
+      console.error("Shop is missing");
+      return;
+    }
+    // const storeHandle = shop.replace(".myshopify.com", "");
 
-    const url = `https://admin.shopify.com/store/${storeHandle}/themes/current/editor?context=apps&activateAppId=${themeExtensionId}`;
+    // const url = `https://admin.shopify.com/store/${storeHandle}/themes/current/editor?context=apps&activateAppId=${themeExtensionId}`;
 
     // Break out of iframe and open Shopify Admin correctly
-    window.open(url, "_top");
+    // window.open(url, "_top");
+    window.open(
+      `https://${shop}/admin/themes/current/editor?context=apps`,
+      "_blank",
+    );
   };
 
   return (

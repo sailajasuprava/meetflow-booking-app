@@ -1,4 +1,4 @@
-import { useLoaderData, useSubmit } from "react-router";
+import { useLoaderData, useSubmit, useNavigate } from "react-router";
 import { Page, Card, DataTable, Text, Button, Modal } from "@shopify/polaris";
 import { DeleteIcon } from "@shopify/polaris-icons";
 import { useState } from "react";
@@ -40,12 +40,11 @@ export const action = async ({ request }) => {
 
 export default function ManageBookings() {
   const { appointments } = useLoaderData();
+  const navigate = useNavigate();
   const submit = useSubmit();
-
   // State for Confirmation Modal
   const [active, setActive] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
-
   const toggleModal = () => setActive(!active);
 
   const openConfirmation = (id) => {
@@ -73,7 +72,13 @@ export default function ManageBookings() {
   ]);
 
   return (
-    <Page title="Bookings" backAction={{ content: "Back", url: "/app" }}>
+    <Page
+      title="Bookings"
+      backAction={{
+        content: "Back",
+        onAction: () => navigate("/app"),
+      }}
+    >
       <Card padding="600">
         {appointments.length === 0 ? (
           <Text as="p" tone="subdued">
